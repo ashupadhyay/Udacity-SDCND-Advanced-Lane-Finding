@@ -131,7 +131,6 @@ The direction of the gradient is simply the inverse tangent (arctangent) of the 
 $$arctan(sobel_x/sobel_y)$$
 
 `def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
-    
     # Apply the following steps to img
     # 1) Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -148,10 +147,9 @@ $$arctan(sobel_x/sobel_y)$$
     binary_output[(absgraddir >= thresh[0]) & (absgraddir <= thresh[1])] = 1
     # 6) Return this mask as your binary_output image
     return binary_output
-    
-``# Run the function
+''' Run the function'''
 dir_binary = dir_threshold(image, sobel_kernel=15, thresh=(0.7, 1.3))
-``# Plot the result
+''' Plot the result'''
 f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
 f.tight_layout()
 ax1.imshow(image)
