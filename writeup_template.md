@@ -88,11 +88,9 @@ Sobely
 
 I used a combination of color and gradient thresholds to generate a binary image. Here's an example of my output for this step.
 
-`
-'''Define a function that applies Sobel x and y, then computes the magnitude of the gradient and applies a threshold'''
 
-def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
-    
+
+`def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
     # Apply the following steps to img
     # 1) Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -109,10 +107,7 @@ def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
     binary_output[(grad_mag >= mag_thresh[0]) & (grad_mag <= mag_thresh[1])] = 1
     # 6) Return this mask as your binary_output image
     return binary_output
-    
-''' Run the function'''
 mag_binary = mag_thresh(image, sobel_kernel=3, mag_thresh=(30, 100))
-''' Plot the result'''
 f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
 f.tight_layout()
 ax1.imshow(image)
@@ -147,9 +142,8 @@ $$arctan(sobel_x/sobel_y)$$
     binary_output[(absgraddir >= thresh[0]) & (absgraddir <= thresh[1])] = 1
     # 6) Return this mask as your binary_output image
     return binary_output
-''' Run the function'''
+
 dir_binary = dir_threshold(image, sobel_kernel=15, thresh=(0.7, 1.3))
-''' Plot the result'''
 f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
 f.tight_layout()
 ax1.imshow(image)
@@ -158,6 +152,7 @@ ax2.imshow(dir_binary, cmap='gray')
 ax2.set_title('Thresholded Grad. Dir.', fontsize=50)
 plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
 `
+
 ![alt text][image11]
 
 Tried different combinations here and got explore wonderful variations.
