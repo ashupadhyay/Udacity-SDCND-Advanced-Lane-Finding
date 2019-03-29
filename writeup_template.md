@@ -30,6 +30,9 @@ The goals / steps of this project are the following:
 [image8]: ./files/sobelx.png
 [image9]: ./files/sobely.png
 [image10]: ./files/sobel_combined.png
+[image11]: ./files/binary.png
+[image12]: ./files/rgb.png
+[image13]: ./files/hls.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -79,16 +82,16 @@ When we look through the lane lines, we might not be able to observe the effect 
 I have marked every code required with appropriate headings above the code section. I have appropriately described with much details in ipython notebook everything needed. I am summarizing below.
 
 I tried to understand how individually applying sobelx and sobely operators on image would look like,
+
 Sobelx
 ![alt text][image8]
+
 Sobely
 ![alt text][image9]
 
 ### Using combined sobelx and sobely 
 
-I used a combination of color and gradient thresholds to generate a binary image. Here's an example of my output for this step.
-
-
+This uses the square root of the combined squares of Sobelx and Sobely, which check for horizontal and vertical gradients (shifts in color, or in the case of our images, lighter vs. darker gray after conversion), respectively.This uses the square root of the combined squares of Sobelx and Sobely, which check for horizontal and vertical gradients (shifts in color, or in the case of our images, lighter vs. darker gray after conversion), respectively.
 
 ```
 def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
@@ -145,19 +148,9 @@ def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
     binary_output[(absgraddir >= thresh[0]) & (absgraddir <= thresh[1])] = 1
     # 6) Return this mask as your binary_output image
     return binary_output
-dir_binary = dir_threshold(image, sobel_kernel=15, thresh=(0.7, 1.3))
-f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
-f.tight_layout()
-ax1.imshow(image)
-ax1.set_title('Original Image', fontsize=50)
-ax2.imshow(dir_binary, cmap='gray')
-ax2.set_title('Thresholded Grad. Dir.', fontsize=50)
-plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
 ```
 
-![alt text][image11]
-
-Tried different combinations here and got explore wonderful variations.
+Tried different combinations here and explored wonderful variations.
 Now I am trying to combine all the conditions here as a selection for pixels where both the `x` and `y` gradients meet the threshold criteria, or the gradient magnitude and direction are both within their threshold values.
 
 ```
@@ -172,6 +165,17 @@ def combined_transform(image):
     combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
     return combined
 ```
+Final output looks like this
+![alt text][image11]
+
+### RGB color thresolds and HLS color thresholds
+
+I tried to look at the different channels an image has,
+For RGB color thresholds the output was,
+![alt text][image12]
+For HLS color thresholds, the output was,
+![alt text][image13]
+
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
