@@ -26,6 +26,7 @@ The goals / steps of this project are the following:
 [image5]: ./examples/color_fit_lines.jpg "Fit Visual"
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
+[image7]: ./files/lane_dist_undist.png "lane_undistorted"
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -35,21 +36,30 @@ The goals / steps of this project are the following:
 
 ### Writeup / README
 
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
-
-You're reading it!
+#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  
+My writeup is a markdown file you can find it [here](https://github.com/ashupadhyay/Udacity-SDCND-Advanced-Lane-Finding/blob/master/writeup_template.md) 
 
 ### Camera Calibration
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./examples/example.ipynb" (or in lines # through # of the file called `some_file.py`).  
+The code for this step is contained in the Seventh to the Eleventh code cell of the IPython notebook located in "Advanced Lane finding.ipynb" 
 
-I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+Two helpful functions provided by the OpenCV are `cv2.findChessboardCorners` and  `cv2.drawChessboardCorners`.
+The important steps to calibrate your camera is:
+1. Collect the object points(internal indices points) from multiple images of a chessboard taken from different angles with the same camera. 
+2. Now also, we would need the internal image points to feed to the function which would in turn calibrate the camera.
 
-I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
+So, the process is, we find the internal image points using `cv2.findChessboardCorners` that we feed to the function `cv2.calibrateCamera`, this returns to us `cameraMatrix` and `distortion coefficients`. These can then be used by the OpenCV `undistort` function to undo the effects of distortion on any image produced by the same camera.
+
+Note: 
+1. There is an assumption that the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
+2. Some of the chessboard images don't appear because findChessboardCorners was unable to detect the desired number of internal corners. For them, the function `image_dist_undist` print appropriate messages.
+
+`image_dist_undist` is the name of the function which receives the input file that we need to undistort, it undistorts the image and plots it (undistorted and distorted, side by side)!
 
 ![alt text][image1]
+
 
 ### Pipeline (single images)
 
@@ -57,6 +67,12 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 ![alt text][image2]
+
+I simply used the function `findChessboardCorners` to get the chessboard corners. After I received the corners I fed it to the calibrateCamera functions which returned me the cameraMatrix and distortion coefficients which were used by the function `undistort` to correct the distortion of the image. Here is the final output of the image:
+![alt text][image7]
+
+
+
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
@@ -116,7 +132,7 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](https://github.com/ashupadhyay/Udacity-SDCND-Advanced-Lane-Finding/blob/master/files/project_video_output.mp4)
 
 ---
 
