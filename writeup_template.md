@@ -88,7 +88,8 @@ Sobely
 
 I used a combination of color and gradient thresholds to generate a binary image. Here's an example of my output for this step.
 
-`# Define a function that applies Sobel x and y, then computes the magnitude of the gradient and applies a threshold
+`
+'''Define a function that applies Sobel x and y, then computes the magnitude of the gradient and applies a threshold'''
 
 def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
     
@@ -109,9 +110,9 @@ def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
     # 6) Return this mask as your binary_output image
     return binary_output
     
-``# Run the function
+''' Run the function'''
 mag_binary = mag_thresh(image, sobel_kernel=3, mag_thresh=(30, 100))
-``# Plot the result
+''' Plot the result'''
 f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
 f.tight_layout()
 ax1.imshow(image)
@@ -129,8 +130,7 @@ In the case of lane lines, we're interested only in edges of a particular orient
 The direction of the gradient is simply the inverse tangent (arctangent) of the yy gradient divided by the xx gradient
 $$arctan(sobel_x/sobel_y)$$
 
-`
-def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
+`def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
     
     # Apply the following steps to img
     # 1) Convert to grayscale
