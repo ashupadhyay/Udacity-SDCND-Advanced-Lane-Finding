@@ -27,6 +27,9 @@ The goals / steps of this project are the following:
 [image6]: ./examples/example_output.jpg "Output"
 [video1]: ./project_video.mp4 "Video"
 [image7]: ./files/lane_dist_undist.png "lane_undistorted"
+[image8]: ./files/sobelx.png
+[image9]: ./files/sobely.png
+[image10]: ./files/sobel_combined.png
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/571/view) Points
 
@@ -65,20 +68,115 @@ Note:
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
-
-I simply used the function `findChessboardCorners` to get the chessboard corners. After I received the corners I fed it to the calibrateCamera functions which returned me the cameraMatrix and distortion coefficients which were used by the function `undistort` to correct the distortion of the image. Here is the final output of the image:
+I simply used the function `findChessboardCorners` to get the chessboard corners. After I received the corners I fed it to the `calibrateCamera` functions which returned me the `cameraMatrix` and `distortion coefficients` which were used by the function `undistort` to correct the distortion of the image. 
+After applying the above steps, our camera is calibrated and we can use any image to be undistorted. I tried appying it on our test images and here is the final output of the image:
 ![alt text][image7]
 
-
-
+When we look through the lane lines, we might not be able to observe the effect of `undistort` but when we look at the hood of the car, we can observe the change in the distortion of the image.
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+I have marked every code required with appropriate headings above the code section. I have appropriately described with much details in ipython notebook everything needed. I am summarizing below.
 
-![alt text][image3]
+I tried to understand how individually applying sobelx and sobely operators on image would look like,
+Sobelx
+![alt text][image8]
+Sobely
+![alt text][image9]
+
+### Using combined sobelx and sobely 
+
+I used a combination of color and gradient thresholds to generate a binary image. Here's an example of my output for this step.
+
+`# Define a function that applies Sobel x and y, then computes the magnitude of the gradient and applies a threshold
+
+def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
+    
+    # Apply the following steps to img
+    # 1) Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    # 2) Take the gradient in x and y separately
+    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
+    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
+    # 3) Calculate the magnitude 
+    grad_mag = np.sqrt(sobelx**2+sobely**2)
+    # 4) Scale to 8-bit (0 - 255) and convert to type = np.uint8
+    scale_factor = np.max(grad_mag)/255 
+    grad_mag = (grad_mag/scale_factor).astype(np.uint8) 
+    # 5) Create a binary mask where mag thresholds are met
+    binary_output = np.zeros_like(grad_mag)
+    binary_output[(grad_mag >= mag_thresh[0]) & (grad_mag <= mag_thresh[1])] = 1
+    # 6) Return this mask as your binary_output image
+    return binary_output
+    
+``# Run the function
+mag_binary = mag_thresh(image, sobel_kernel=3, mag_thresh=(30, 100))
+``# Plot the result
+f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
+f.tight_layout()
+ax1.imshow(image)
+ax1.set_title('Original Image', fontsize=50)
+ax2.imshow(mag_binary, cmap='gray')
+ax2.set_title('Thresholded Magnitude', fontsize=50)
+plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)`
+
+![alt text][image10]
+
+# Direction of the Gradient
+Gradient magnitude is at the heart of Canny edge detection, and is why Canny works well for picking up all edges.<br>
+In the case of lane lines, we're interested only in edges of a particular orientation. So now we will explore the direction, or orientation, of the gradient.
+
+The direction of the gradient is simply the inverse tangent (arctangent) of the yy gradient divided by the xx gradient
+$$arctan(sobel_x/sobel_y)$$
+
+`
+def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
+    
+    # Apply the following steps to img
+    # 1) Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    # 2) Take the gradient in x and y separately
+    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=sobel_kernel)
+    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=sobel_kernel)
+    # 3) Take the absolute value of the x and y gradients
+    abs_sobelx = np.absolute(sobelx)
+    abs_sobely = np.absolute(sobely)
+    # 4) Use np.arctan2(abs_sobely, abs_sobelx) to calculate the direction of the gradient 
+    absgraddir = np.arctan2(np.absolute(sobely), np.absolute(sobelx))
+    # 5) Create a binary mask where direction thresholds are met
+    binary_output =  np.zeros_like(absgraddir)
+    binary_output[(absgraddir >= thresh[0]) & (absgraddir <= thresh[1])] = 1
+    # 6) Return this mask as your binary_output image
+    return binary_output
+    
+``# Run the function
+dir_binary = dir_threshold(image, sobel_kernel=15, thresh=(0.7, 1.3))
+``# Plot the result
+f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
+f.tight_layout()
+ax1.imshow(image)
+ax1.set_title('Original Image', fontsize=50)
+ax2.imshow(dir_binary, cmap='gray')
+ax2.set_title('Thresholded Grad. Dir.', fontsize=50)
+plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
+`
+![alt text][image11]
+
+Tried different combinations here and got explore wonderful variations.
+Now I am trying to combine all the conditions here as a selection for pixels where both the `x` and `y` gradients meet the threshold criteria, or the gradient magnitude and direction are both within their threshold values.
+
+`
+ksize = 3 # Choose a larger odd number to smooth gradient measurements
+def combined_transform(image):
+    # Apply each of the thresholding functions
+    gradx = abs_sobel_thresh(image, orient='x', sobel_kernel=ksize, thresh=(20, 100))
+    grady = abs_sobel_thresh(image, orient='y', sobel_kernel=ksize, thresh=(20,100))
+    mag_binary = mag_thresh(image, sobel_kernel=ksize, mag_thresh=(30, 100))
+    dir_binary = dir_threshold(image, sobel_kernel=ksize, thresh=(np.pi/6, np.pi/2))
+    combined = np.zeros_like(dir_binary)
+    combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
+    return combined
+`
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
