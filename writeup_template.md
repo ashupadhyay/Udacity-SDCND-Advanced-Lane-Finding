@@ -125,7 +125,8 @@ In the case of lane lines, we're interested only in edges of a particular orient
 The direction of the gradient is simply the inverse tangent (arctangent) of the yy gradient divided by the xx gradient
 $$arctan(sobel_x/sobel_y)$$
 
-`def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
+`
+def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
     # Apply the following steps to img
     # 1) Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
