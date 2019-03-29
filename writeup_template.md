@@ -90,7 +90,8 @@ I used a combination of color and gradient thresholds to generate a binary image
 
 
 
-`def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
+```
+def mag_thresh(img, sobel_kernel=9, mag_thresh=(0, 255)):
     # Apply the following steps to img
     # 1) Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -114,7 +115,8 @@ ax1.imshow(image)
 ax1.set_title('Original Image', fontsize=50)
 ax2.imshow(mag_binary, cmap='gray')
 ax2.set_title('Thresholded Magnitude', fontsize=50)
-plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)`
+plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
+```
 
 ![alt text][image10]
 
@@ -125,7 +127,8 @@ In the case of lane lines, we're interested only in edges of a particular orient
 The direction of the gradient is simply the inverse tangent (arctangent) of the yy gradient divided by the xx gradient
 $$arctan(sobel_x/sobel_y)$$
 
-`def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
+```
+def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
     # Apply the following steps to img
     # 1) Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -141,9 +144,8 @@ $$arctan(sobel_x/sobel_y)$$
     binary_output =  np.zeros_like(absgraddir)
     binary_output[(absgraddir >= thresh[0]) & (absgraddir <= thresh[1])] = 1
     # 6) Return this mask as your binary_output image
-    return binary_output`
-
-`dir_binary = dir_threshold(image, sobel_kernel=15, thresh=(0.7, 1.3))
+    return binary_output
+dir_binary = dir_threshold(image, sobel_kernel=15, thresh=(0.7, 1.3))
 f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 9))
 f.tight_layout()
 ax1.imshow(image)
@@ -151,14 +153,14 @@ ax1.set_title('Original Image', fontsize=50)
 ax2.imshow(dir_binary, cmap='gray')
 ax2.set_title('Thresholded Grad. Dir.', fontsize=50)
 plt.subplots_adjust(left=0., right=1, top=0.9, bottom=0.)
-`
+```
 
 ![alt text][image11]
 
 Tried different combinations here and got explore wonderful variations.
 Now I am trying to combine all the conditions here as a selection for pixels where both the `x` and `y` gradients meet the threshold criteria, or the gradient magnitude and direction are both within their threshold values.
 
-`
+```
 ksize = 3 # Choose a larger odd number to smooth gradient measurements
 def combined_transform(image):
     # Apply each of the thresholding functions
@@ -169,7 +171,7 @@ def combined_transform(image):
     combined = np.zeros_like(dir_binary)
     combined[((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1))] = 1
     return combined
-`
+```
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
